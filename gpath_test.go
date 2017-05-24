@@ -7,6 +7,18 @@ import (
 	. "github.com/tenntenn/gpath"
 )
 
+type Hoge struct {
+	Foo *Foo
+}
+
+type Foo struct {
+	Bar *Bar
+}
+
+type Bar struct {
+	N int
+}
+
 func TestAt(t *testing.T) {
 	data := []struct {
 		d      interface{}
@@ -72,6 +84,17 @@ func TestAt(t *testing.T) {
 			},
 			p:      `A.C`,
 			hasErr: true,
+		},
+		{
+			d: &Hoge{
+				Foo: &Foo{
+					Bar: &Bar{
+						N: 100,
+					},
+				},
+			},
+			p: `Foo.Bar`,
+			e: &Bar{N: 100},
 		},
 	}
 

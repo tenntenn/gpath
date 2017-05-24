@@ -39,9 +39,9 @@ func at(v reflect.Value, expr ast.Expr) (reflect.Value, error) {
 
 	switch expr := expr.(type) {
 	case nil:
-		return direct(v), nil
+		return v, nil
 	case *ast.Ident:
-		return direct(v), nil
+		return v, nil
 	case *ast.SelectorExpr:
 		return atBySelector(v, expr)
 	case *ast.IndexExpr:
@@ -66,6 +66,7 @@ func atBySelector(v reflect.Value, expr *ast.SelectorExpr) (reflect.Value, error
 		return reflect.Value{}, err
 	}
 
+	ev = direct(ev)
 	switch ev.Kind() {
 	case reflect.Struct:
 		fv := ev.FieldByName(expr.Sel.Name)
@@ -83,6 +84,8 @@ func atByIndex(v reflect.Value, expr *ast.IndexExpr) (reflect.Value, error) {
 	if err != nil {
 		return reflect.Value{}, err
 	}
+	ev = direct(ev)
+
 	bl, ok := expr.Index.(*ast.BasicLit)
 	if !ok {
 		return reflect.Value{}, errors.New("does not support index type")

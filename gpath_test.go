@@ -75,7 +75,7 @@ func TestAt(t *testing.T) {
 				A map[string][]int
 			}{
 				A: map[string][]int{
-					"foo": []int{100, 200},
+					"foo": {100, 200},
 				},
 			},
 			p: `A["foo"][1]`,

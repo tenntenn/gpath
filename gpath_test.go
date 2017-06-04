@@ -1,6 +1,7 @@
 package gpath_test
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -17,6 +18,31 @@ type Foo struct {
 
 type Bar struct {
 	N int
+}
+
+func Example_At() {
+	type Bar struct {
+		N []int
+	}
+
+	type Foo struct {
+		Bar *Bar
+	}
+
+	f := &Foo{
+		Bar: &Bar{
+			N: []int{100},
+		},
+	}
+
+	v, err := At(f, `Bar.N[0]`)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(v)
+	}
+	// Output:
+	// 100
 }
 
 func TestAt(t *testing.T) {

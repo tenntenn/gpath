@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+// At access a field of v by a path.
+// v must be struct or pointer of struct.
+// A path is represented by Go's expression which can be parsed by go/parser.ParseExpr.
+// You can use selectors and indexes in a path.
+// Indexes allow only string and int literals for maps.
 func At(v interface{}, path string) (interface{}, error) {
 
 	if strings.HasPrefix(path, "[") {

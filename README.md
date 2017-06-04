@@ -23,3 +23,5 @@ $ go get github.com/tenntenn/gpath
 ## Usage
 
 All usage are described in [GoDoc](https://godoc.org/github.com/tenntenn/gpath).
+
+[mercari/go-httpdoc](https://github.com/mercari/go-httpdoc) is a good example for gpath.

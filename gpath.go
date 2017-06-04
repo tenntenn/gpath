@@ -5,9 +5,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/parser"
-	"go/token"
 	"reflect"
-	"strings"
 )
 
 // At access a field of v by a path.
@@ -17,11 +15,7 @@ import (
 // Indexes allow only string and int literals for maps.
 func At(v interface{}, path string) (interface{}, error) {
 
-	if strings.HasPrefix(path, "[") {
-		path = "v" + path
-	} else {
-		path = "v." + path
-	}
+	path = "v." + path
 
 	expr, err := parser.ParseExpr(path)
 	if err != nil {
@@ -31,6 +25,10 @@ func At(v interface{}, path string) (interface{}, error) {
 	ev, err := at(reflect.ValueOf(v), expr)
 	if err != nil {
 		return nil, err
+	}
+
+	if ev == (reflect.Value{}) {
+		return nil, nil
 	}
 
 	return ev.Interface(), nil
@@ -43,8 +41,6 @@ func at(v reflect.Value, expr ast.Expr) (reflect.Value, error) {
 	}
 
 	switch expr := expr.(type) {
-	case nil:
-		return v, nil
 	case *ast.Ident:
 		return v, nil
 	case *ast.SelectorExpr:
@@ -91,31 +87,37 @@ func atByIndex(v reflect.Value, expr *ast.IndexExpr) (reflect.Value, error) {
 	}
 	ev = direct(ev)
 
-	bl, ok := expr.Index.(*ast.BasicLit)
-	if !ok {
-		return reflect.Value{}, errors.New("does not support index type")
+	idx, err := evalExpr(expr.Index)
+	if err != nil {
+		return reflect.Value{}, err
 	}
 
 	switch ev.Kind() {
 	case reflect.Slice, reflect.Array:
-		i, err := intIndex(bl)
-		if err != nil {
-			return reflect.Value{}, err
+		i, ok := constant.Int64Val(idx)
+		if !ok {
+			return reflect.Value{}, errors.New("does not support index type")
 		}
-		return ev.Index(i), nil
+		return ev.Index(int(i)), nil
 	case reflect.Map:
-		switch bl.Kind {
-		case token.INT:
-			k, err := intIndex(bl)
-			if err != nil {
-				return reflect.Value{}, err
+		switch idx.Kind() {
+		case constant.Int:
+			k, ok := constant.Int64Val(idx)
+			if !ok {
+				return reflect.Value{}, errors.New("does not support index type")
+			}
+			return ev.MapIndex(reflect.ValueOf(int(k))), nil
+		case constant.Float:
+			k, ok := constant.Float64Val(idx)
+			if !ok {
+				return reflect.Value{}, errors.New("does not support index type")
 			}
 			return ev.MapIndex(reflect.ValueOf(k)), nil
-		case token.STRING:
-			k, err := stringIndex(bl)
-			if err != nil {
-				return reflect.Value{}, err
-			}
+		case constant.String:
+			k := constant.StringVal(idx)
+			return ev.MapIndex(reflect.ValueOf(k)), nil
+		case constant.Bool:
+			k := constant.BoolVal(idx)
 			return ev.MapIndex(reflect.ValueOf(k)), nil
 		default:
 			return reflect.Value{}, errors.New("does not support index type")
@@ -123,26 +125,4 @@ func atByIndex(v reflect.Value, expr *ast.IndexExpr) (reflect.Value, error) {
 	default:
 		return reflect.Value{}, errors.New("does not support expr type")
 	}
-}
-
-func intIndex(bl *ast.BasicLit) (int, error) {
-	if bl.Kind != token.INT {
-		return 0, errors.New("does not support index type")
-	}
-
-	cv := constant.MakeFromLiteral(bl.Value, bl.Kind, 0)
-	i, ok := constant.Int64Val(cv)
-	if !ok {
-		return 0, errors.New("does not support index type")
-	}
-
-	return int(i), nil
-}
-
-func stringIndex(bl *ast.BasicLit) (string, error) {
-	if bl.Kind != token.STRING {
-		return "", errors.New("does not support index type")
-	}
-	cv := constant.MakeFromLiteral(bl.Value, bl.Kind, 0)
-	return constant.StringVal(cv), nil
 }

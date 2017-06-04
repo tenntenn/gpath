@@ -83,6 +83,17 @@ func TestAt(t *testing.T) {
 		},
 		{
 			d: struct {
+				A map[int][]int
+			}{
+				A: map[int][]int{
+					200: {100, 200},
+				},
+			},
+			p: `A[200][1]`,
+			e: 200,
+		},
+		{
+			d: struct {
 				A struct {
 					B int
 				}
@@ -122,6 +133,195 @@ func TestAt(t *testing.T) {
 			p: `Foo.Bar`,
 			e: &Bar{N: 100},
 		},
+		{
+			d: struct {
+				N []int
+			}{
+				N: []int{100},
+			},
+			p: `N[0]`,
+			e: 100,
+		},
+		{
+			p:      `import "fmt"`,
+			hasErr: true,
+		},
+		{
+			p:      `Call()`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[int]int
+			}{
+				N: map[int]int{-1: 100},
+			},
+			p: `N[-1]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[int]int
+			}{
+				N: map[int]int{0: 100},
+			},
+			p: `N[1-1]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[int]int
+			}{
+				N: map[int]int{0: 100},
+			},
+			p: `N[(0)]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p: `N[true]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{false: 100},
+			},
+			p: `N[false]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p: `N[100 > 0]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p: `N[true]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p:      `N[1 + f()]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p:      `N[T]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p:      `N[-T]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p:      `N[T - 1]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[bool]int
+			}{
+				N: map[bool]int{true: 100},
+			},
+			p:      `N["key" + 1]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[int]int
+			}{
+				N: map[int]int{10: 100},
+			},
+			p:      `N[99999999999999999999999999999]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N []int
+			}{
+				N: []int{100},
+			},
+			p:      `N[99999999999999999999999999999]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[float64]int
+			}{
+				N: map[float64]int{1.5: 100},
+			},
+			p: `N[1.5]`,
+			e: 100,
+		},
+		{
+			d: struct {
+				N map[float64]int
+			}{
+				N: map[float64]int{1.5: 100},
+			},
+			p:      `N[99999999999999999999999999999999999.0]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N map[int]int
+			}{
+				N: map[int]int{100: 100},
+			},
+			p: `N[0]`,
+			e: nil,
+		},
+		{
+			d:      100,
+			p:      `N[0]`,
+			hasErr: true,
+		},
+		{
+			d:      100,
+			p:      `A.B[0]`,
+			hasErr: true,
+		},
+		{
+			d: struct {
+				N int
+			}{
+				N: 100,
+			},
+			p:      `N[0]`,
+			hasErr: true,
+		},
 	}
 
 	for i := range data {
@@ -137,7 +337,7 @@ func TestAt(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(a, data[i].e) {
-			t.Errorf("got %v want %v", a, data[i].e)
+			t.Errorf("case %d: got %v want %v", i, a, data[i].e)
 		}
 	}
 }

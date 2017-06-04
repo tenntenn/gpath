@@ -20,7 +20,7 @@ type Bar struct {
 	N int
 }
 
-func Example_At() {
+func ExampleAt() {
 	type Bar struct {
 		N []int
 	}

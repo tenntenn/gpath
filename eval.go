@@ -28,7 +28,7 @@ func evalExpr(expr ast.Expr) (v constant.Value, rerr error) {
 		return evalIdent(e)
 	}
 
-	return constant.MakeUnknown(), errors.New("unkown node")
+	return constant.MakeUnknown(), errors.New("unknown node")
 }
 
 func evalBinaryExpr(expr *ast.BinaryExpr) (constant.Value, error) {
@@ -67,5 +67,5 @@ func evalIdent(expr *ast.Ident) (constant.Value, error) {
 		return constant.MakeBool(false), nil
 	}
 
-	return constant.MakeUnknown(), errors.New("unkown ident")
+	return constant.MakeUnknown(), errors.New("unknown ident")
 }

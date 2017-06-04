@@ -12,7 +12,8 @@ import (
 // v must be struct or pointer of struct.
 // A path is represented by Go's expression which can be parsed by go/parser.ParseExpr.
 // You can use selectors and indexes in a path.
-// Indexes allow only string and int literals for maps.
+// Slice and arrays index allow only expressions of int.
+// Maps key allow only expressions of string, int and float64.
 func At(v interface{}, path string) (interface{}, error) {
 
 	path = "v." + path

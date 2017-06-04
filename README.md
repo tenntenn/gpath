@@ -1,4 +1,4 @@
-# gpath [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godoc] [![Travis](https://img.shields.io/travis/tenntenn/gpath.svg?style=flat-square)][travis]
+# gpath [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godoc] [![Travis](https://img.shields.io/travis/tenntenn/gpath.svg?style=flat-square)][travis] [![Go Report Card](https://goreportcard.com/badge/github.com/tenntenn/gpath)](https://goreportcard.com/report/github.com/tenntenn/gpath)
 
 [godoc]: http://godoc.org/github.com/tenntenn/gpath
 [travis]: https://travis-ci.org/tenntenn/gpath
